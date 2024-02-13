@@ -27,17 +27,26 @@ final class InitialSceneViewController: BaseViewController<InitialSceneInteracta
         
         (interactor as? BaseInteractable)?.lifeCycleDidChanged(event: .didEnterBackground)
     }
+    
+    @IBOutlet private weak var topPaddingConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var sceneTitle: UILabel!
 }
 
 extension InitialSceneViewController: InitialSceneViewControllerType {
 	func update(viewModelDataType: InitialSceneViewControllerViewModel.ViewModelDataType) {
 		switch viewModelDataType {
 		case .initialSetup(let model):
-            #warning("Initial setup here")
+            sceneTitle.alpha = Constants.alphaValues.min
         case .prepareForInitialAnimation:
-            #warning("Preparing for initial animation here")
+            topPaddingConstraint.constant = AppUINode.shared.topPaddingValue + Constants.topExtraCV
         case .runInitialAnimation:
-            #warning("Preparing for initial animation here")
+            UIView.animate(withDuration: Constants.initialAD, delay: 0, options: [.curveEaseInOut, .allowUserInteraction], animations: extractSelf { sSelf in
+                sSelf.sceneTitle.alpha = Constants.alphaValues.max
+                
+                sSelf.topPaddingConstraint.constant -= Constants.topExtraCV
+                
+                sSelf.view.layoutIfNeeded()
+            })
 		}
 	}
 }
@@ -45,5 +54,10 @@ extension InitialSceneViewController: InitialSceneViewControllerType {
 extension InitialSceneViewController {
 	private struct Constants {
         static let alphaValues: (min: CGFloat, max: CGFloat) = (min: 0.0, max: 1.0)
+        
+        //MARK: - ConstraintsValues
+        static let topExtraCV: CGFloat = 30
+        //Animation duration
+        static let initialAD: Double = 10.0
 	}
 }
